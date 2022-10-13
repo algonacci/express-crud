@@ -38,9 +38,19 @@ const updateTransaction = async (req, res, next) => {
   res.status(200).json({ transaction });
 };
 
+const deleteTransaction = async (req, res) => {
+  const { id: transactionID } = req.params;
+  const transaction = await Finance.findOneAndDelete({ _id: transactionID });
+  if (!transaction) {
+    res.status(400).json({ error: `No transaction with ID: ${transactionID}` });
+  }
+  res.status(200).json({ transaction });
+};
+
 module.exports = {
   getAllTransactions,
   createTransaction,
   getTransaction,
   updateTransaction,
+  deleteTransaction,
 };
