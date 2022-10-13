@@ -1,5 +1,4 @@
 const Finance = require("../../models/finance");
-const { createCustomError } = require("../../errors/custom-error");
 
 const getAllTransactions = async (req, res) => {
   const transactions = await Finance.find({});
@@ -9,6 +8,18 @@ const getAllTransactions = async (req, res) => {
 const createTransaction = async (req, res) => {
   const transaction = await Finance.create(req.body);
   res.status(201).json(transaction);
+};
+
+const getTransaction = async (req, res) => {
+  const { id: transactionID } = req.params;
+  const transaction = await Finance.findOne({ _id: transactionID }, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!transaction) {
+    res.status(400).json({ error: `No transaction with ID: ${transactionID}` });
+  }
+  res.status(200).json({ transaction });
 };
 
 const updateTransaction = async (req, res, next) => {
@@ -22,9 +33,7 @@ const updateTransaction = async (req, res, next) => {
     }
   );
   if (!transaction) {
-    return next(
-      createCustomError(`No transaction with ID: ${transactionID}`, 404)
-    );
+    res.status(400).json({ error: `No transaction with ID: ${transactionID}` });
   }
   res.status(200).json({ transaction });
 };
@@ -32,5 +41,6 @@ const updateTransaction = async (req, res, next) => {
 module.exports = {
   getAllTransactions,
   createTransaction,
+  getTransaction,
   updateTransaction,
 };
